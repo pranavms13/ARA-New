@@ -1,34 +1,37 @@
 import uuid from 'react-native-uuid';
-const API = 'https://stage1.uidai.gov.in/onlineekyc';
 
-export const getOtp = async (uid) => {
+const APIURL = 'https://stage1.uidai.gov.in/onlineekyc/'
+
+export const getOTP = async (uid) => {
     try {
-        const ntxnId = uuid.v4();
-        const response = await fetch(`${API}/getOtp/`, {
+        let ntxnid = uuid.v4();
+        const response = await fetch(APIURL + 'getOtp', {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
                 "uid": uid,
-                "txnId": ntxnId
+                "txnId": ntxnid,
             })
         })
-        return {resp : response.json(), txnId : ntxnId};
+        return {response : response.json(), txnId : ntxnid}
     } catch (error) {
-        return console.log(error);
+        return console.log(error)
     }
 }
 
-export const getEkyc = async (uid, otp, txnId) => {
+export const getEkyc = async (uid, otp, txnid) => {
     try {
-        const response = await fetch(`${API}/getEkyc/`, {
+        const response = await fetch(APIURL + 'getEkyc', {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
                 "uid": uid,
                 "otp": otp,
-                "txnId": txnId
+                "txnId": txnid,
             })
         })
         return response.json();

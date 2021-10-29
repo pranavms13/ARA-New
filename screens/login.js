@@ -1,11 +1,51 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, ImageBackground, Text, StyleSheet, Image, TextInput, TouchableOpacity } from 'react-native';
 
+import { getOTP, getEkyc } from '../assets/helpers/api';
+import SQLite from 'react-native-sqlite-storage';
+
+var db = SQLite.openDatabase({name: 'sqlite.db', createFromLocation: 1}, () => {
+    
+}, (err) => {
+    console.log('error: ', err)
+});
 
 export default function LoginScreen(props) {
     const [ano, setAno] = React.useState('');
     const [otpsent, setOtpsent] = React.useState(false);
+    const [txnId, setTxnId] = React.useState('');
     const [otp, setOtp] = React.useState('');
+
+    onSendOtpClick = () => {
+        getOTP(ano).then(res => {
+            setOtpsent(true);
+            setTxnId(res.txnId);
+        }).catch(err => {
+            alert(err);
+        });
+    }
+
+    onVerifyOtpClick = () => {
+        getEkyc(ano, otp, txnId).then(res => {
+            console.log(res);
+            db.transaction(tx => {
+                tx.executeSql(`INSERT INTO residentdetails (eKycString) VALUES (${res.eKycString})`)
+            });
+            // props.setLoggedin(true)
+        }).catch(err => {
+            console.error(err);
+        });
+    }
+
+    useEffect(() => {
+        createTable();
+    }, [])
+
+    const createTable = () => {
+        db.transaction(tx => {
+            tx.executeSql('CREATE TABLE IF NOT EXISTS residentdetails (id INTEGER PRIMARY KEY AUTOINCREMENT, eKycString TEXT)');
+        })
+    }
 
     return (
         <View style={{ width: '100%', height: '100%', alignItems: 'center', backgroundColor: '#FFFFFF' }}>
@@ -20,7 +60,7 @@ export default function LoginScreen(props) {
                         <Text style={styles.text}>Enter your Aadhaar Number</Text>
                         <TextInput style={styles.input} onChangeText={setAno} value={ano} placeholder="XXXX XXXX XXXX" placeholderTextColor="#BBBBBB" keyboardType='numeric' maxLength={12} />
                     </View>
-                    <TouchableOpacity style={styles.button} onPress={() => setOtpsent(true)}>
+                    <TouchableOpacity style={styles.button} onPress={() => onSendOtpClick()}>
                         <Text style={{ fontFamily: 'Ubuntu-Regular', color: '#ffffff' }}>Generate OTP</Text>
                     </TouchableOpacity>
                 </>
@@ -31,8 +71,8 @@ export default function LoginScreen(props) {
                         <Text style={styles.small}>An OTP has been sent to the Mobile Number linked to your Aadhaar Number</Text>
                         <TextInput style={styles.input} onChangeText={setOtp} value={otp} placeholder="XXXXXX" placeholderTextColor="#BBBBBB" keyboardType='numeric' maxLength={6} />
                     </View>
-                    <TouchableOpacity style={styles.button} onPress={() => { props.setLoggedin(true) }}>
-                        <Text style={{ fontFamily: 'Ubuntu-Regular', color: '#ffffff' }} onPress={() => { }}>Verify</Text>
+                    <TouchableOpacity style={styles.button} onPress={() => { onVerifyOtpClick() }}>
+                        <Text style={{ fontFamily: 'Ubuntu-Regular', color: '#ffffff' }} >Verify</Text>
                     </TouchableOpacity>
                 </>
             }
