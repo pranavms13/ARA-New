@@ -31,13 +31,14 @@ export default function App() {
 
   useEffect(() => {
     storager.getItem('ARA:loggedin').then(value => {
-      setLoggedin(value === "true");
+      setLoggedin(value === "true"? true : false);
     });
   }, []);
 
   const loginsetter = (v) => {
     setLoggedin(v);
     storager.setItem('ARA:loggedin', v === true ? "true" : "false");
+    if(!v) storager.removeItem('ARA:ekycdata');
   }
 
   // if (!fontsLoaded) {

@@ -2,19 +2,26 @@ import React, { useEffect } from 'react';
 import { View, ImageBackground, Text, StyleSheet, Image, TextInput, TouchableOpacity } from 'react-native';
 
 import { getOTP, getEkyc } from '../assets/helpers/api';
-import SQLite from 'react-native-sqlite-storage';
 
-var db = SQLite.openDatabase({name: 'sqlite.db', createFromLocation: 1}, () => {
-    
-}, (err) => {
-    console.log('error: ', err)
-});
+import Storage from '../assets/helpers/storage';
+
+const storager = new Storage();
 
 export default function LoginScreen(props) {
     const [ano, setAno] = React.useState('');
     const [otpsent, setOtpsent] = React.useState(false);
     const [txnId, setTxnId] = React.useState('');
     const [otp, setOtp] = React.useState('');
+
+    useEffect(() => {
+        storager.getItem('ARA:ekycdata').then(data => {
+            if (data) {
+                props.setLoggedin(true)
+            }
+        }).catch(err => {
+            console.log(err);
+        });
+    }, []);
 
     onSendOtpClick = () => {
         getOTP(ano).then(res => {
@@ -27,24 +34,12 @@ export default function LoginScreen(props) {
 
     onVerifyOtpClick = () => {
         getEkyc(ano, otp, txnId).then(res => {
+            storager.setItem('ARA:ekycdata', JSON.stringify(res.eKycString))
             console.log(res);
-            db.transaction(tx => {
-                tx.executeSql(`INSERT INTO residentdetails (eKycString) VALUES (${res.eKycString})`)
-            });
-            // props.setLoggedin(true)
+            props.setLoggedin(true)
         }).catch(err => {
             console.error(err);
         });
-    }
-
-    useEffect(() => {
-        createTable();
-    }, [])
-
-    const createTable = () => {
-        db.transaction(tx => {
-            tx.executeSql('CREATE TABLE IF NOT EXISTS residentdetails (id INTEGER PRIMARY KEY AUTOINCREMENT, eKycString TEXT)');
-        })
     }
 
     return (
