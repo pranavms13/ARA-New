@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     },
     buttontext: {
         fontFamily: 'Ubuntu-Regular',
-        fontWeight: '800',
+        // fontWeight: '800',
         fontSize: 20,
         color: '#ffffff',
         lineHeight: 25,
