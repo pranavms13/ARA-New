@@ -1,0 +1,14 @@
+com/resident/MainActivity.java
+ com.resident.MainActivity
+com/resident/BuildConfig.java
+ com.resident.BuildConfig
+com/resident/ReactNativeFlipper.java
+ com.resident.ReactNativeFlipper
+ com.resident.ReactNativeFlipper$1
+ com.resident.ReactNativeFlipper$2
+ com.resident.ReactNativeFlipper$2$1
+com/facebook/react/PackageList.java
+ com.facebook.react.PackageList
+com/resident/MainApplication.java
+ com.resident.MainApplication
+ com.resident.MainApplication$1
